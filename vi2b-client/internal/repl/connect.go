@@ -16,7 +16,7 @@ func ConnectCommand(args []string) {
 	if len(args) < 3 {
 		server = services.NewTCPServer(args[1], args[2])
 	} else {
-		server = services.NewTCPServer(args[1], nil)
+		server = services.NewTCPServer(args[1], "")
 	}
 
 	server.Connect()
