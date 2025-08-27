@@ -14,8 +14,11 @@ func setCommandCallback(command_name string, command_callback func([]string)) {
 }
 
 func Start() {
+	setCommandCallback("connect", ConnectCommand)
+	setCommandCallback("disconnect", DisconnectCommand)
 	setCommandCallback("echo", EchoCommand)
 	setCommandCallback("exit", ExitCommand)
+	setCommandCallback("help", HelpCommand)
 	
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Println("Welcome to vi2b! Type 'help' for commands.")
@@ -29,6 +32,13 @@ func Start() {
 		
 		input := scanner.Text()
 		args := strings.Fields(input)
+
+		_, ok := commands_callback[args[0]]
+
+		if !ok {
+			fmt.Println("Unknown command! Type 'help' for commands.")
+			continue
+		}
 
 		commands_callback[args[0]](args)
 	}
