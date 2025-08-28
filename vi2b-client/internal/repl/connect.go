@@ -2,7 +2,7 @@ package repl
 
 import (
 	"fmt"
-	"github.com/Explorer-art/vi2b/services"
+	"github.com/Explorer-art/vi2b-client/internal/core"
 )
 
 func ConnectCommand(args []string) {
@@ -11,13 +11,13 @@ func ConnectCommand(args []string) {
 		return
 	}
 
-	var server *services.TCPServer
+	var client *core.Client
 
-	if len(args) < 3 {
-		server = services.NewTCPServer(args[1], args[2])
+	if len(args) == 3 {
+		client = core.NewClient(args[1], args[2])
 	} else {
-		server = services.NewTCPServer(args[1], "")
+		client = core.NewClient(args[1], "")
 	}
 
-	server.Connect()
+	client.Connect()
 }

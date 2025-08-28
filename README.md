@@ -1,1 +1,1 @@
-# vi2b-server
+# vi2b

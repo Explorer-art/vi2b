@@ -1,9 +1,9 @@
 package repl
 
 import (
-	"github.com/Explorer-art/vi2b/services"
+	"github.com/Explorer-art/vi2b-client/internal/core"
 )
 
 func DisconnectCommand(args []string) {
-	services.GetServer().Disconnect()
+	core.GetClient().Disconnect()
 }
