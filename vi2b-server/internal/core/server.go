@@ -77,24 +77,24 @@ func registerClient(conn *websocket.Conn, ip string, data map[string]interface{}
 	return true
 }
 
-func onData(conn *websocket.Conn, ip string, message []byte) bool {
+func onData(conn *websocket.Conn, ip string, message []byte) {
 	dataType, jsonData := decodeData(message)
 
 	if dataType == "" && jsonData == nil {
 		log.Println("Error decode data")
-		return false
+		return
 	}
 
 	if dataType == "introduce" {
-		return registerClient(conn, ip, jsonData)
+		registerClient(conn, ip, jsonData)
 	} else if _, ok := clientsData[conn]; ok && dataType == "bye" {
 		log.Println("Bye!")
 		delete(clientsData, conn)
 	} else {
-		return false
+		for _, plugin := range plugins {
+			plugin.OnMessage(conn, ip, jsonData)
+		}
 	}
-
-	return true
 }
 
 func handleConnections(w http.ResponseWriter, r *http.Request) {
@@ -118,15 +118,19 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 		}
 
-		if !onData(conn, ip, message) {
-			break
-		}
+		onData(conn, ip, message)
 	}
 }
 
 func Init(address string, password string, dbName string) *Server {
 	server = &Server{Address: address, Password: password, DBName: dbName}
 	DBInit(dbName)
+
+	for name, plugin := range plugins {
+		plugin.Init()
+		log.Printf("Plugin %s initialized\n", name)
+	}
+	
 	return server
 }
 

@@ -16,6 +16,7 @@ func setCommandCallback(command_name string, command_callback func([]string)) {
 func Start() {
 	setCommandCallback("connect", ConnectCommand)
 	setCommandCallback("disconnect", DisconnectCommand)
+	setCommandCallback("say", SayCommand)
 	setCommandCallback("echo", EchoCommand)
 	setCommandCallback("exit", ExitCommand)
 	setCommandCallback("help", HelpCommand)

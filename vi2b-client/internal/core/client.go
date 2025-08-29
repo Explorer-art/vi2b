@@ -45,6 +45,14 @@ func (s *Server) Send(message []byte) error {
 	return err
 }
 
+func (s *Server) SendMessage(dataType string, data interface{}) error {
+	err := s.Conn.WriteMessage(websocket.TextMessage, []byte(encodeData(dataType, data)))
+	if err != nil {
+		log.Printf("Write error: %s\n", err)
+	}
+	return err
+}
+
 func (s *Server) Connect() error {
 	url := "ws://" + s.Address + "/ws"
 	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
@@ -55,7 +63,7 @@ func (s *Server) Connect() error {
 
 	s.Conn = conn
 
-	s.Send([]byte(encodeData("introduce", Introduce{Password: s.Password})))
+	s.SendMessage("introduce", Introduce{Password: s.Password})
 
 	return nil
 }
