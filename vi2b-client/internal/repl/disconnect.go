@@ -5,5 +5,5 @@ import (
 )
 
 func DisconnectCommand(args []string) {
-	core.GetClient().Disconnect()
+	core.GetServer().Disconnect()
 }

@@ -7,18 +7,17 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type Client struct {
+type Server struct {
 	Conn 		*websocket.Conn
 	Address		string
 	Password	string
-	Username	string
 }
 
 type Introduce struct {
-	Password	string
+	Password	string `json:"password"`
 }
 
-var client *Client
+var server *Server
 
 func encodeData(dataType string, data interface{}) string {
 	jsonData, err := json.Marshal(data)
@@ -29,39 +28,39 @@ func encodeData(dataType string, data interface{}) string {
 	return fmt.Sprintf("%s`%s\n", dataType, string(jsonData))
 }
 
-func NewClient(address string, password string) *Client {
-	client = &Client{Address: address, Password: password}
-	return client
+func NewServer(address string, password string) *Server {
+	server = &Server{Address: address, Password: password}
+	return server
 }
 
-func GetClient() *Client {
-	return client
+func GetServer() *Server {
+	return server
 }
 
-func (c *Client) Send(message []byte) error {
-	err := c.Conn.WriteMessage(websocket.TextMessage, message)
+func (s *Server) Send(message []byte) error {
+	err := s.Conn.WriteMessage(websocket.TextMessage, message)
 	if err != nil {
 		log.Printf("Write error: %s\n", err)
 	}
 	return err
 }
 
-func (c *Client) Connect() error {
-	url := "ws://" + c.Address + "/ws"
+func (s *Server) Connect() error {
+	url := "ws://" + s.Address + "/ws"
 	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
 		log.Fatal(err)
 		return err
 	}
 
-	c.Conn = conn
+	s.Conn = conn
 
-	c.Send([]byte(encodeData("introduce", Introduce{Password: c.Password})))
+	s.Send([]byte(encodeData("introduce", Introduce{Password: s.Password})))
 
 	return nil
 }
 
-func (c *Client) Disconnect() {
-	c.Send([]byte("bye`{}\n"))
-	c.Conn.Close()
+func (s *Server) Disconnect() {
+	s.Send([]byte("bye`{}\n"))
+	s.Conn.Close()
 }

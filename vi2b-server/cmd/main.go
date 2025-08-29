@@ -6,12 +6,12 @@ import (
 )
 
 func main() {
-	address := ":8080"
+	address := ":8000"
 
 	if len(os.Args) > 1 {
 		address = os.Args[1]
 	}
 	
-	server := core.NewServer(address, "")
+	server := core.Init(address, "", "db.sqlite3")
 	server.Start()
 }

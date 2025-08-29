@@ -11,13 +11,13 @@ func ConnectCommand(args []string) {
 		return
 	}
 
-	var client *core.Client
+	var server *core.Server
 
 	if len(args) == 3 {
-		client = core.NewClient(args[1], args[2])
+		server = core.NewServer(args[1], args[2])
 	} else {
-		client = core.NewClient(args[1], "")
+		server = core.NewServer(args[1], "")
 	}
 
-	client.Connect()
+	server.Connect()
 }
