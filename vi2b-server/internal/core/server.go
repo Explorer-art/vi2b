@@ -20,17 +20,24 @@ type Client struct {
 	Conn		*websocket.Conn
 	IP			string
 	Username	string
+	PermissionsGroup string
 }
 
 type User struct {
 	ID			uint
 	IP			string
 	Username	string
+	PermissionsGroup string
 	Is_enable	bool
 }
 
+type SendChatMessage struct {
+	Message 	string `json:"message"`
+}
+
 var server *Server
-var clientsData = map[*websocket.Conn]Client{}
+var clientsData = map[*websocket.Conn]*Client{}
+const defaultGroup = "default"
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize: 1024,
@@ -69,11 +76,11 @@ func registerClient(conn *websocket.Conn, ip string, data map[string]interface{}
 
 	user, _ := DBGetUserByIP(ip)
 	if user == nil {
-		DBCreateUser(&User{IP: ip, Username: "", Is_enable: true})
+		DBCreateUser(&User{IP: ip, Username: "", PermissionsGroup: defaultGroup, Is_enable: true})
 	}
 
 	user, _ = DBGetUserByIP(ip)
-	clientsData[conn] = Client{Conn: conn, IP: ip, Username: user.Username}
+	clientsData[conn] = &Client{Conn: conn, IP: ip, Username: user.Username, PermissionsGroup: user.PermissionsGroup}
 	return true
 }
 
@@ -90,6 +97,8 @@ func onData(conn *websocket.Conn, ip string, message []byte) {
 	} else if _, ok := clientsData[conn]; ok && dataType == "bye" {
 		log.Println("Bye!")
 		delete(clientsData, conn)
+	} else if _, ok := clientsData[conn]; ok && dataType == "cmd" {
+		ParseCommand(clientsData[conn], jsonData["command"].(string))
 	} else {
 		for _, plugin := range plugins {
 			plugin.OnMessage(conn, ip, jsonData)
@@ -145,4 +154,24 @@ func (s *Server) Start() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func (c *Client) Send(message []byte) error {
+	err := c.Conn.WriteMessage(websocket.TextMessage, message)
+	if err != nil {
+		log.Printf("Write error: %s\n", err)
+	}
+	return err
+}
+
+func (c *Client) SendMessage(dataType string, data interface{}) error {
+	err := c.Conn.WriteMessage(websocket.TextMessage, []byte(encodeData(dataType, data)))
+	if err != nil {
+		log.Printf("Write error: %s\n", err)
+	}
+	return err
+}
+
+func (c *Client) Close() {
+	c.Conn.Close()
 }

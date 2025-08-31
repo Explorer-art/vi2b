@@ -17,6 +17,10 @@ type Introduce struct {
 	Password	string `json:"password"`
 }
 
+type SendCommand struct {
+	Command 	string `json:"command"`
+}
+
 var server *Server
 
 func encodeData(dataType string, data interface{}) string {
@@ -53,6 +57,20 @@ func (s *Server) SendMessage(dataType string, data interface{}) error {
 	return err
 }
 
+func (s *Server) OnData() {
+	defer s.Conn.Close()
+
+	for {
+		_, message, err := s.Conn.ReadMessage()
+		if err != nil {
+			log.Printf("Read error: %s\n", err)
+			return
+		}
+
+		log.Printf("Received: %s", message)
+	}
+}
+
 func (s *Server) Connect() error {
 	url := "ws://" + s.Address + "/ws"
 	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
@@ -62,6 +80,8 @@ func (s *Server) Connect() error {
 	}
 
 	s.Conn = conn
+
+	go s.OnData()
 
 	s.SendMessage("introduce", Introduce{Password: s.Password})
 

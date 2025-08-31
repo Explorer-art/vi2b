@@ -5,6 +5,7 @@ import (
 	"os"
 	"bufio"
 	"strings"
+	"github.com/Explorer-art/vi2b-client/internal/core"
 )
 
 var commands_callback = make(map[string]func([]string))
@@ -37,7 +38,7 @@ func Start() {
 		_, ok := commands_callback[args[0]]
 
 		if !ok {
-			fmt.Println("Unknown command! Type 'help' for commands.")
+			core.GetServer().SendMessage("cmd", core.SendCommand{Command: strings.Replace(input, "\n", "", -1)})
 			continue
 		}
 

@@ -8,7 +8,7 @@ import (
 
 var db *gorm.DB
 
-func DBInit(dbName string) {
+func DBInit(dbName string) *gorm.DB {
 	var err error
 	db, err = gorm.Open(sqlite.Open(dbName), &gorm.Config{})
 	if err != nil {
@@ -16,6 +16,12 @@ func DBInit(dbName string) {
 	}
 
 	db.AutoMigrate(&User{})
+
+	return db
+}
+
+func GetDB() *gorm.DB {
+	return db
 }
 
 func DBGetUserByIP(ip string) (*User, error) {
