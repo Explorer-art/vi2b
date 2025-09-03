@@ -1,4 +1,5 @@
 vi2b-server/main.exe
 vi2b-server/main
+vi2b-server/db.sqlite3
 vi2b-client/main.exe
 vi2b-client/main
