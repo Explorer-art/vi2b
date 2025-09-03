@@ -12,7 +12,7 @@ func DBInit(dbName string) *gorm.DB {
 	var err error
 	db, err = gorm.Open(sqlite.Open(dbName), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Failed init SQLite")
+		log.Fatal("Failed init SQLite:", err)
 	}
 
 	db.AutoMigrate(&User{})

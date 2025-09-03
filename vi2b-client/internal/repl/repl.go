@@ -2,43 +2,50 @@ package repl
 
 import (
 	"fmt"
-	"os"
-	"bufio"
+	"log"
 	"strings"
+	"github.com/chzyer/readline"
 	"github.com/Explorer-art/vi2b-client/internal/core"
 )
 
+var rl *readline.Instance
 var commands_callback = make(map[string]func([]string))
 
 func setCommandCallback(command_name string, command_callback func([]string)) {
 	commands_callback[command_name] = command_callback
 }
 
-func Start() {
+func Init(l *readline.Instance) {
+	rl = l
+
 	setCommandCallback("connect", ConnectCommand)
 	setCommandCallback("disconnect", DisconnectCommand)
 	setCommandCallback("say", SayCommand)
 	setCommandCallback("echo", EchoCommand)
 	setCommandCallback("exit", ExitCommand)
 	setCommandCallback("help", HelpCommand)
-	
-	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Println("Welcome to vi2b! Type 'help' for commands.")
-	
+}
+
+func Start() {
+	fmt.Fprintf(rl.Stdout(), "Welcome to vi2b! Type 'help' for commands.")
+
 	for {
-		fmt.Print("> ")
-		
-		if !scanner.Scan() {
+		line, err := rl.Readline()
+		if err != nil {
+			log.Printf("Error read line: %s\n", err)
+			continue
+		}
+
+		if line == "exit" {
 			break
 		}
 		
-		input := scanner.Text()
-		args := strings.Fields(input)
+		args := strings.Fields(line)
 
 		_, ok := commands_callback[args[0]]
 
 		if !ok {
-			core.GetServer().SendMessage("cmd", core.SendCommand{Command: strings.Replace(input, "\n", "", -1)})
+			core.GetServer().SendMessage("cmd", core.SendCommand{Command: strings.Replace(line, "\n", "", -1)})
 			continue
 		}
 

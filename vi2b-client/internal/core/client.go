@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"encoding/json"
+	"github.com/chzyer/readline"
 	"github.com/gorilla/websocket"
 )
 
@@ -22,6 +23,7 @@ type SendCommand struct {
 }
 
 var server *Server
+var rl *readline.Instance
 
 func encodeData(dataType string, data interface{}) string {
 	jsonData, err := json.Marshal(data)
@@ -30,6 +32,10 @@ func encodeData(dataType string, data interface{}) string {
 	}
 
 	return fmt.Sprintf("%s`%s\n", dataType, string(jsonData))
+}
+
+func Init(l *readline.Instance) {
+	rl = l
 }
 
 func NewServer(address string, password string) *Server {
@@ -63,11 +69,12 @@ func (s *Server) OnData() {
 	for {
 		_, message, err := s.Conn.ReadMessage()
 		if err != nil {
-			log.Printf("Read error: %s\n", err)
+			log.Fatal("Received error: ", err)
 			return
 		}
 
-		log.Printf("Received: %s", message)
+		rl.Write([]byte("\rCHAT > " + string(message) + "\n"))
+		rl.Refresh()
 	}
 }
 
