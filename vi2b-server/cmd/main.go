@@ -2,7 +2,7 @@ package main
 
 import (
 	"os"
-	_ "github.com/Explorer-art/vi2b-server/internal/plugins/example"
+	_ "github.com/Explorer-art/vi2b-server/internal/plugins/chat"
 	"github.com/Explorer-art/vi2b-server/internal/core"
 )
 

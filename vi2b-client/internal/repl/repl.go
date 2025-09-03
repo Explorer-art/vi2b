@@ -20,7 +20,6 @@ func Init(l *readline.Instance) {
 
 	setCommandCallback("connect", ConnectCommand)
 	setCommandCallback("disconnect", DisconnectCommand)
-	setCommandCallback("say", SayCommand)
 	setCommandCallback("echo", EchoCommand)
 	setCommandCallback("exit", ExitCommand)
 	setCommandCallback("help", HelpCommand)

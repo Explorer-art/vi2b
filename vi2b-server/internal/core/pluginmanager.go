@@ -27,15 +27,15 @@ var plugins map[string]Plugin
 var permissionsGroups map[string]PermissionsGroup
 var commands map[string]Command
 
-func checkPermission(permissionsGroup string, permission string) bool {
-	for _, command := range commands {
-		if command.Permission == permission {
-			return true
-		}
-	}
+// func checkPermission(permissionsGroup string, permission string) bool {
+// 	for _, v := range permissionsGroups {
+// 		if v == permission {
+// 			return true
+// 		}
+// 	}
 
-	return false
-}
+// 	return false
+// }
 
 func RegisterPlugin(name string, p Plugin) {
 	plugins[name] = p
@@ -66,8 +66,7 @@ func ParseCommand(client *Client, command string) {
 
 	_, ok := commands[commandName]
 	if !ok {
-		client.SendMessage("chat", "Unknown command")
-		client.Close()
+		client.SendMessage("chat", ChatMessage{Message: "Unknown command"})
 		return
 	}
 
@@ -76,9 +75,12 @@ func ParseCommand(client *Client, command string) {
 		return
 	}
 
-	if checkPermission(client.PermissionsGroup, commands[commandName].Permission) {
-		commands[commandName].FuncCallback(client, args)
-	}
+	// if checkPermission(client.PermissionsGroup, commands[commandName].Permission) {
+	// 	log.Println("Success")
+	// 	commands[commandName].FuncCallback(client, args)
+	// } else {
+	// 	client.SendMessage("chat", ChatMessage{Message: "You don't have permission!"})
+	// }
 }
 
 func init() {

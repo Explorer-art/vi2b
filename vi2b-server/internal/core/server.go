@@ -31,12 +31,12 @@ type User struct {
 	Is_enable	bool
 }
 
-type SendChatMessage struct {
-	Message 	string `json:"message"`
+type ChatMessage struct {
+	Message		string `json:"message"`
 }
 
 var server *Server
-var clientsData = map[*websocket.Conn]*Client{}
+var ClientsData = map[*websocket.Conn]*Client{}
 const defaultGroup = "default"
 
 var upgrader = websocket.Upgrader{
@@ -50,7 +50,7 @@ func encodeData(dataType string, data interface{}) string {
 		return ""
 	}
 
-	return fmt.Sprintf("%s`%s\n", dataType, string(jsonData))
+	return fmt.Sprintf("%s`%s", dataType, string(jsonData))
 }
 
 func decodeData(data []byte) (string, map[string]interface{}) {
@@ -80,7 +80,7 @@ func registerClient(conn *websocket.Conn, ip string, data map[string]interface{}
 	}
 
 	user, _ = DBGetUserByIP(ip)
-	clientsData[conn] = &Client{Conn: conn, IP: ip, Username: user.Username, PermissionsGroup: user.PermissionsGroup}
+	ClientsData[conn] = &Client{Conn: conn, IP: ip, Username: user.Username, PermissionsGroup: user.PermissionsGroup}
 	return true
 }
 
@@ -94,11 +94,11 @@ func onData(conn *websocket.Conn, ip string, message []byte) {
 
 	if dataType == "introduce" {
 		registerClient(conn, ip, jsonData)
-	} else if _, ok := clientsData[conn]; ok && dataType == "bye" {
+	} else if _, ok := ClientsData[conn]; ok && dataType == "bye" {
 		log.Println("Bye!")
-		delete(clientsData, conn)
-	} else if _, ok := clientsData[conn]; ok && dataType == "cmd" {
-		ParseCommand(clientsData[conn], jsonData["command"].(string))
+		delete(ClientsData, conn)
+	} else if _, ok := ClientsData[conn]; ok && dataType == "cmd" {
+		ParseCommand(ClientsData[conn], jsonData["command"].(string))
 	} else {
 		for _, plugin := range plugins {
 			plugin.OnMessage(conn, ip, jsonData)

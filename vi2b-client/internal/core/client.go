@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"log"
+	"strings"
 	"encoding/json"
 	"github.com/chzyer/readline"
 	"github.com/gorilla/websocket"
@@ -31,7 +32,21 @@ func encodeData(dataType string, data interface{}) string {
 		return ""
 	}
 
-	return fmt.Sprintf("%s`%s\n", dataType, string(jsonData))
+	return fmt.Sprintf("%s`%s", dataType, string(jsonData))
+}
+
+func decodeData(data []byte) (string, map[string]interface{}) {
+	splitedData := strings.Split(string(data), "`")
+
+	if len(splitedData) < 2 {
+		return "", nil
+	}
+
+	var jsonData map[string]interface{}
+	
+	json.Unmarshal([]byte(splitedData[1]), &jsonData)
+
+	return splitedData[0], jsonData
 }
 
 func Init(l *readline.Instance) {
@@ -73,8 +88,12 @@ func (s *Server) OnData() {
 			return
 		}
 
-		rl.Write([]byte("\rCHAT > " + string(message) + "\n"))
-		rl.Refresh()
+		dataType, data := decodeData(message)
+
+		if dataType == "chat" {
+			fmt.Println(data["message"])
+			rl.Refresh()
+		}
 	}
 }
 

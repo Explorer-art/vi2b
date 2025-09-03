@@ -2,6 +2,8 @@ package repl
 
 import (
 	"fmt"
+	"os"
+	"strings"
 	"github.com/Explorer-art/vi2b-client/internal/core"
 )
 
@@ -20,4 +22,21 @@ func ConnectCommand(args []string) {
 	}
 
 	server.Connect()
+}
+
+func DisconnectCommand(args []string) {
+	core.GetServer().Disconnect()
+}
+
+func EchoCommand(args []string) {
+	args = append(args[:0], args[1:]...)
+	fmt.Println(strings.Join(args, " "))
+}
+
+func ExitCommand(args []string) {
+	os.Exit(0)
+}
+
+func HelpCommand(args []string) {
+	fmt.Println("Commands:\nserver\necho\nexit\nhelp\n")
 }
