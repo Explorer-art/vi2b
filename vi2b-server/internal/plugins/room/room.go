@@ -1,10 +1,13 @@
 package room
 
 import (
+	"log"
+
 	"github.com/Explorer-art/vi2b-server/core"
+	"github.com/gorilla/websocket"
 )
 
-type Plugin struct {}
+type Plugin struct{}
 
 func helloCallback(client *core.Client, args []string) {
 	client.SendMessage("chat", SendChatMessage{Message: "Hello!"})
